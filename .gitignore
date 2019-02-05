@@ -1,0 +1,15 @@
+# virtual envirnemnt folder other files
+.idea/
+venv/
+__pycache__/
+*.pyc
+*.asv
+*.POLY3
+*.TXT
+*.VTK
+path
+*.m~
+*.mex*
+slprj/
+octave-workspace
+.autosave
