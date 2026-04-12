@@ -48,20 +48,17 @@ def main():
         mf_tstp = get_itemwise_scalars(mole_fractions[i][:], nel, ngd_tot)
         chem_pot_tstp = get_itemwise_scalars(chem_potentials[i][:], nel, ngd_tot)
         phf_tstp = get_itemwise_scalars(ph_fractions[i][:], nph, ngd_tot)
-        mf_bc = add_scalars_limits(mf_tstp[0, :], ngd)
-        chem_pot_bc = add_scalars_limits(chem_pot_tstp[0, :], ngd)
-        phf_bc = add_scalars_limits(phf_tstp[0, :], ngd)
+        mf_bc_list = [add_scalars_limits(mf_tstp[0, :], ngd)]
+        chem_pot_bc_list = [add_scalars_limits(chem_pot_tstp[0, :], ngd)]
+        phf_bc_list = [add_scalars_limits(phf_tstp[0, :], ngd)]
         for elidx in range(1, nel):
-            app_temp = []
-            app_temp = add_scalars_limits(mf_tstp[elidx, :], ngd)
-            mf_bc = np.vstack((mf_bc, app_temp))
-            app_temp = []
-            app_temp = add_scalars_limits(chem_pot_tstp[elidx, :], ngd)
-            chem_pot_bc = np.vstack((chem_pot_bc, app_temp))
+            mf_bc_list.append(add_scalars_limits(mf_tstp[elidx, :], ngd))
+            chem_pot_bc_list.append(add_scalars_limits(chem_pot_tstp[elidx, :], ngd))
+        mf_bc = np.vstack(mf_bc_list)
+        chem_pot_bc = np.vstack(chem_pot_bc_list)
         for phidx in range(1, nph):
-            app_temp = []
-            app_temp = add_scalars_limits(phf_tstp[phidx, :], ngd)
-            phf_bc = np.vstack((phf_bc, app_temp))
+            phf_bc_list.append(add_scalars_limits(phf_tstp[phidx, :], ngd))
+        phf_bc = np.vstack(phf_bc_list)
         header_str = write_vtk(fin_volcentr_coord_with_limits, ngd_bc, i, el_names, ph_names, mf_bc, chem_pot_bc, phf_bc)
 
         if (i == ntp-1) and (len(hcc) != 0):
