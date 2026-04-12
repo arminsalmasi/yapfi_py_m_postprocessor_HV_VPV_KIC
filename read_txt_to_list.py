@@ -6,7 +6,7 @@ from writevtk import write_vtk
 from addbcs import add_scalars_limits
 from addbcs import add_coords_limits
 import re
-##from tc_python import *
+
 
 def main():
     #path = os.getcwd() + '\\8-2D-F285-TCFe-AIMD-FittedWithYapfi'
