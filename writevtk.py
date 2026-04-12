@@ -4,7 +4,7 @@ import sys
 
 
 def write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf):
-    np.set_printoptions(threshold=np.inf, linewidth=sys.maxint)
+    np.set_printoptions(threshold=np.inf, linewidth=sys.maxsize)
     n_dim = len(num_ngd)
     h_str = '# vtk DataFile Version 2.0' + '\n'\
             + 'All information at time step: '+str(tstp) + ' ' + "\\n" + '\n'\
