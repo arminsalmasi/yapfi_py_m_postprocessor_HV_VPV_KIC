@@ -74,7 +74,7 @@ def main():
         fout = open(out_file_name, "w")
         fout.write(header_str)
         fout.close()
-0000
+
 if __name__ == "__main__":
     main()
 
