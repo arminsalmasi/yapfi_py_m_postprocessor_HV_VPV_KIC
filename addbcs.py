@@ -28,8 +28,6 @@ def add_coords_limits(cc_old, nxyz , lxyz, n_dim):
         nx, ny, lx, ly = nxyz[0], nxyz[1], lxyz[0], lxyz[1]
         cc_old_y = cc_old[1:ny*2:2]
         cc_old_x = cc_old[0:-1:nx*2]
-        #print(" ".join(str(y) for y in cc_old_y))
-        #print(" ".join(str(x) for x in cc_old_x))
         cc_old_x = np.insert(cc_old_x, 0, [0], axis=0)
         cc_old_y = np.insert(cc_old_y, 0, [0], axis=0)
         cc_old_x = np.insert(cc_old_x, nx+1, lx, axis=0)
@@ -41,7 +39,6 @@ def add_coords_limits(cc_old, nxyz , lxyz, n_dim):
                 cc_new[k] = cc_old_x[i]
                 cc_new[k+1] = cc_old_y[j]
                 k += 2
-        #print(" ".join(str(y) for y in cc_new))
     if n_dim == 3:
         nx, ny, nz, lx, ly, lz = nxyz[0], nxyz[1], nxyz[2], lxyz[0], lxyz[1], lxyz[2]
     # Return Values
