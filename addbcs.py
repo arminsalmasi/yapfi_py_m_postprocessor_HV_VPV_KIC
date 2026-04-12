@@ -6,7 +6,7 @@ def add_scalars_limits(in_array, nxyz):
     if n_dim == 1:
         out_array = np.insert(in_array, 0, in_array[0])
         out_array = np.insert(out_array, nxyz[0]+1, in_array[-1])
-    if n_dim == 2:
+    elif n_dim == 2:
         temp_array = np.reshape(in_array, (nxyz[0], nxyz[1]))
         x_app_first = temp_array[0, :]
         x_app_last = temp_array[-1, :]
@@ -17,6 +17,8 @@ def add_scalars_limits(in_array, nxyz):
         temp_array = np.insert(temp_array, 1, y_app_first, axis=1)
         temp_array = np.insert(temp_array, -1, y_app_last, axis=1)
         out_array = np.reshape(temp_array, (1, (nxyz[0]+2)*(nxyz[1]+2)))
+    else:
+        raise ValueError(f"Unsupported dimension: {n_dim}. Only 1D and 2D arrays are supported.")
     return out_array
 
 def add_coords_limits(cc_old, nxyz , lxyz, n_dim):
