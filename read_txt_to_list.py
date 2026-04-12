@@ -80,21 +80,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
-
-
-## without boundary limits
-# header_str = write_vtk(fin_volcentr_coord, ngd, i, el_names, ph_names, mf_tstp, chem_pot_tstp, phf_tstp)
-# if i == ntp:
-#    HCC = np.array(HCC)
-#    header_str = header_str + 'SCALARS ' + 'HCC' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' + re.sub('[\[\]]', '', np.array_str(HCC[0][:])) + '\n'
-# out_file_name = path + '\\vtk\\tstp_' + str(i) + '.vtk'
-# fout = open(out_file_name, "w")
-# fout.write(header_str)
-# fout.close()
-# if not os.path.exists(path + '\\vtk'):
-#   os.makedirs(path + '\\vtk')
