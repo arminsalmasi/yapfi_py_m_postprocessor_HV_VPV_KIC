@@ -1,6 +1,7 @@
-import numpy as np
 import pytest
-from addbcs import add_scalars_limits
+from addbcs import add_scalars_limits, add_coords_limits
+
+np = pytest.importorskip("numpy")
 
 def test_add_scalars_limits_1d():
     in_array = np.array([1, 2, 3])
@@ -34,3 +35,24 @@ def test_add_scalars_limits_0d():
     nxyz = []
     with pytest.raises(ValueError, match="Unsupported dimension: 0. Only 1D and 2D arrays are supported."):
         add_scalars_limits(in_array, nxyz)
+
+def test_add_coords_limits_1d():
+    cc_old = np.array([10, 20, 30])
+    nxyz = [3]
+    lxyz = [40]
+    result = add_coords_limits(cc_old, nxyz, lxyz, 1)
+    expected = np.array([0, 10, 20, 30, 40])
+    np.testing.assert_array_equal(result, expected)
+
+def test_add_coords_limits_2d():
+    cc_old = np.array([10, 5, 10, 15, 20, 5, 20, 15])
+    nxyz = [2, 2]
+    lxyz = [30, 40]
+    result = add_coords_limits(cc_old, nxyz, lxyz, 2)
+    expected = np.array([
+         0.,  0.,  0.,  5.,  0., 15.,  0., 40.,
+        10.,  0., 10.,  5., 10., 15., 10., 40.,
+        20.,  0., 20.,  5., 20., 15., 20., 40.,
+        30.,  0., 30.,  5., 30., 15., 30., 40.
+    ])
+    np.testing.assert_array_equal(result, expected)

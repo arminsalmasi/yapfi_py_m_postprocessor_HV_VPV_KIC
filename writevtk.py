@@ -27,7 +27,7 @@ def write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf):
             cells.append(str(2**n_dim) + ' ' + str(x[ix]) + ' ' + str(x[ix+1])+ '\n')
         h_str = h_str + ''.join(cells)
         h_str = h_str+'CELL_TYPES ' + str(nx-1) + '\n'
-        type_array = np.ones((1, (nx-1)), dtype=np.int)*4
+        type_array = np.ones((1, (nx-1)), dtype=int)*4
         h_str = h_str+np.array_str(type_array).replace('[', '').replace(']', '') + '\n'
     if n_dim == 2:
         nx, ny, nz = num_ngd[0], num_ngd[1], 1
@@ -45,7 +45,7 @@ def write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf):
                             + str(x[0][iy+1][ix+1]) + '\n')
         h_str = h_str + ''.join(cells)
         h_str = h_str+'CELL_TYPES ' + str((nx-1)*(ny-1)) + '\n'
-        type_array = np.ones((1, (nx-1)*(ny-1)), dtype=np.int)*8
+        type_array = np.ones((1, (nx-1)*(ny-1)), dtype=int)*8
         h_str = h_str+np.array_str(type_array).replace('[', '').replace(']', '') + '\n'
     h_str = h_str+'POINT_DATA ' + str(np.prod(num_ngd)) + '\n'
     k = 0
