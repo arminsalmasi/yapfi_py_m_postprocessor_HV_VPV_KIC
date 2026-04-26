@@ -8,11 +8,12 @@ from addbcs import add_coords_limits
 import re
 
 
-def main():
-    #path = os.getcwd() + '\\8-2D-F285-TCFe-AIMD-FittedWithYapfi'
-    #path = os.getcwd() + '\\LM-Yapfi-firstTry-20181221-files'
-    path = os.getcwd() + '\\10-2D-F2275-TCFE-AIMD-FittedWithYapfi'
-    #path = os.getcwd() + '\\8-1D-LM_2dGradSint-YAPFI-TCFE8-AIMD-1mm-YAPFIgrid-Compare_to_F285'
+def main(path=None):
+    if path is None:
+        #path = os.path.join(os.getcwd(), '8-2D-F285-TCFe-AIMD-FittedWithYapfi')
+        #path = os.path.join(os.getcwd(), 'LM-Yapfi-firstTry-20181221-files')
+        path = os.path.join(os.getcwd(), '10-2D-F2275-TCFE-AIMD-FittedWithYapfi')
+        #path = os.path.join(os.getcwd(), '8-1D-LM_2dGradSint-YAPFI-TCFE8-AIMD-1mm-YAPFIgrid-Compare_to_F285')
 
     [fin_volcentr_coord, chem_potentials, domain_size, grad_energy_contr, mole_fractions, n_elements,
      n_gridpoints, n_phases, permeabilities, ph_field, ph_fractions, time, el_names, ph_names, n_dimensions, hcc, k1c] = read_files(path)
@@ -38,8 +39,8 @@ def main():
     for i in range(n_dim):
         coords_limits[i] = domain_size[i]
         ngd_ternary[i] = ngd[i]
-    if not os.path.exists(path + '\\BCvtk'):
-        os.makedirs(path + '\\BCvtk')
+    if not os.path.exists(os.path.join(path, 'BCvtk')):
+        os.makedirs(os.path.join(path, 'BCvtk'))
     fin_volcentr_coord_with_limits = add_coords_limits(fin_volcentr_coord, ngd_ternary, coords_limits, n_dim)
     ngd_bc = np.array([], dtype=int)
     for i in range(n_dim):
@@ -64,13 +65,13 @@ def main():
         if (i == ntp-1) and (len(hcc) != 0):
             hcc_bc = add_scalars_limits(hcc[0][:], ngd)
             header_str = header_str + 'SCALARS ' + 'HCC' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
-                   + re.sub('[\[\]]', '', np.array_str(hcc_bc[0][:])) + '\n'
+                   + re.sub(r'[\[\]]', '', np.array_str(hcc_bc[0][:])) + '\n'
         if (i == ntp-1) and (len(k1c) != 0):
             k1c_bc = add_scalars_limits(k1c[0][:], ngd)
             header_str = header_str + 'SCALARS ' + 'K1C' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
-                         + re.sub('[\[\]]', '', np.array_str(k1c_bc[0][:])) + '\n'
+                         + re.sub(r'[\[\]]', '', np.array_str(k1c_bc[0][:])) + '\n'
 
-        out_file_name = path + '\\BCvtk\\tstp_bc_' + str(i) + '.vtk'
+        out_file_name = os.path.join(path, 'BCvtk', 'tstp_bc_' + str(i) + '.vtk')
         fout = open(out_file_name, "w")
         fout.write(header_str)
         fout.close()
