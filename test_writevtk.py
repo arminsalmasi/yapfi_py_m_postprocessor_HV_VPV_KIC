@@ -66,5 +66,38 @@ class TestWriteVTK(unittest.TestCase):
         self.assertIn('SCALARS mole-fraction(C) Double 1', result)
         self.assertIn('SCALARS phase-fraction(Gamma) Double 1', result)
 
+    def test_write_vtk_3d(self):
+        # 2x2x2 grid = 8 points
+        coord = np.array([
+            [0.0, 0.0, 0.0], [1.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0], [1.0, 1.0, 0.0],
+            [0.0, 0.0, 1.0], [1.0, 0.0, 1.0],
+            [0.0, 1.0, 1.0], [1.0, 1.0, 1.0]
+        ])
+        num_ngd = [2, 2, 2]
+        tstp = 30
+        elnames = ['Ni']
+        phnames = ['Beta']
+        mf = [np.array([[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]])]
+        mur = [np.array([[-1.0, -2.0, -3.0, -4.0, -5.0, -6.0, -7.0, -8.0]])]
+        phf = [np.array([[1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0]])]
+
+        result = write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf)
+
+        self.assertIn('# vtk DataFile Version 2.0', result)
+        self.assertIn('All information at time step: 30', result)
+        self.assertIn('DATASET UNSTRUCTURED_GRID', result)
+        self.assertIn('POINTS 8 Double', result)
+
+        # writevtk currently does not output CELLS or CELL_TYPES for n_dim == 3.
+        # But we must verify the POINT_DATA and SCALARS are output correctly.
+        self.assertIn('POINT_DATA 8', result)
+        self.assertIn('SCALARS mole-fraction(Ni) Double 1', result)
+        self.assertIn('SCALARS chemical-potential(Ni) Double 1', result)
+        self.assertIn('SCALARS phase-fraction(Beta) Double 1', result)
+
+        # Check coordinates format. Since it's 3D, there should be no padding required.
+        self.assertIn('1.000000000000000E+00 1.000000000000000E+00 1.000000000000000E+00', result)
+
 if __name__ == '__main__':
     unittest.main()
