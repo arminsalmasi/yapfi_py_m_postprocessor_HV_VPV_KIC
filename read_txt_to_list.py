@@ -10,7 +10,6 @@ import re
 
 def main():
     path = os.path.join(os.getcwd(), '10-2D-F2275-TCFE-AIMD-FittedWithYapfi')
-
     [fin_volcentr_coord, chem_potentials, domain_size, grad_energy_contr, mole_fractions, n_elements,
      n_gridpoints, n_phases, permeabilities, ph_field, ph_fractions, time, el_names, ph_names, n_dimensions, hcc, k1c] = read_files(path)
     ntp = int(len(time))
@@ -67,7 +66,6 @@ def main():
             k1c_bc = add_scalars_limits(k1c[0][:], ngd)
             header_str = header_str + 'SCALARS ' + 'K1C' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
                          + re.sub(r'[\[\]]', '', np.array_str(k1c_bc[0][:])) + '\n'
-
         out_file_name = os.path.join(bcvtk_path, 'tstp_bc_' + str(i) + '.vtk')
         fout = open(out_file_name, "w")
         fout.write(header_str)
