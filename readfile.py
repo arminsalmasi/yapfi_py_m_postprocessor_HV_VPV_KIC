@@ -11,9 +11,7 @@ def read_mapped_file(path, filename, dtype, optional=False):
         return list(map(dtype, f))
 
 def read_files(path):
-    #path = os.getcwd() + '\\test2D'
     print(path)
-# Read Files
     fin_volcentr_coord = read_mapped_file(path, 'FINITE_VOLUME_CENTROID_COORDINATES.TXT', float)
     chem_potentials = read_mapped_file(path, 'CHEMICAL_POTENTIALS.TXT', float)
     domain_size = read_mapped_file(path, 'DOMAIN_SIZE.TXT', float)
