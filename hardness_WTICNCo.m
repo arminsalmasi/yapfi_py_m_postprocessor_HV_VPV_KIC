@@ -72,17 +72,13 @@ A_CoW=4767;
 A_TiW=239;
 A_CoC=3354;
 A_WC=0;
-%A_TiC=A_WC;
 A_TiC = 2000;
-%A_CoN A_TiC A_TiN A_WN;   
 Q_CoTi= 1024;
 Q_CoW=280;
 Q_TiW=298;
 Q_CoC=2197;
 Q_WC=294;
-%Q_TiC = Q_WC ;  
 Q_TiC = 200;
-%Q_WN Q_CoN Q_TiC Q_TiN;
 %% General conditions Toughness
     EB = 207*10^9; % Young's mpdulous of the Cobalt binder GPa
     EWC = 700*10^9; %Young's mpdulous of the WC GPa
