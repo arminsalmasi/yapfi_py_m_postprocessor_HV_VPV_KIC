@@ -131,7 +131,6 @@ for i = 1 : size(mf_tstp,1)/nel
     fprintf(fileID_1, '%f \n', HCC(i)); %(i) in Vickers to GPA => HV multiply by 0.009807
     fprintf(fileID_3, '%f \n', HCC(i)*0.009807); %(i) in Vickers to GPA => HV multiply by 0.009807
     %% Fracture toughness calculation Linder WPMA 2018
-    %GB = (sigmaYB*x0^(0.5)*(19.655+5.8508*log(mfp * 1e-6 /x0)))^2*(1-nuB^2)/EB;% fracture eenrgy of the binder
     GB = (1E6 *( 19.655+5.8508*log(mfp/x0) ))^2 * (1-nuB^2) / EB;% fracture eenrgy of the binder
     ECC = EB*((EB+(EWC-EB)*(1-vpvB).^(2/3))/(EB+(EWC-EB)*(1-vpvB).^(2/3)*(1-(1-vpvB).^(1/3)))); % Pa % EB is E_Co% %Paul relation Young modulus of cemented carbide
     K1C(i) = sqrt(  (ECC/(1-nuCC^2)) * (exp(-1.77*vpvB^0.78) * GWC + (1-exp(-1.77*vpvB^0.78))*GB)); %in Pa
