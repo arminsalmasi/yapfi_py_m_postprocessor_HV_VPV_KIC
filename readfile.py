@@ -1,4 +1,3 @@
-import numpy as np
 import os
 
 def read_mapped_file(path, filename, dtype, optional=False):
