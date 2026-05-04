@@ -1,5 +1,6 @@
 import numpy as np
 import sys
+import io
 
 
 def write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf):
@@ -13,7 +14,10 @@ def write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf):
     app_array = np.zeros((np.prod(num_ngd), 1))
     for i in range(n_dim, 3):
         coord = np.append(coord, app_array, axis=1)
-    h_str = h_str + ('\n '.join(' '.join(str('{:1.15E}'.format(cell)) for cell in row) for row in coord)) + '\n'
+
+    s = io.StringIO()
+    np.savetxt(s, coord, fmt='%1.15E', delimiter=' ', newline='\n ')
+    h_str = h_str + s.getvalue()[:-2] + '\n'
 
 
     if n_dim == 1:
