@@ -56,3 +56,15 @@ def test_add_coords_limits_2d():
         30.,  0., 30.,  5., 30., 15., 30., 40.
     ])
     np.testing.assert_array_equal(result, expected)
+
+@pytest.mark.xfail(raises=UnboundLocalError, strict=True, reason="Bug: cc_new is not assigned for 3D coordinates")
+def test_add_coords_limits_3d():
+    cc_old = np.array([1, 2, 3])
+    nxyz = [2, 2, 2]
+    lxyz = [10, 10, 10]
+    # We expect a properly formatted coordinate array, but the function crashes.
+    # Marking as xfail rather than explicitly asserting an internal bug.
+    result = add_coords_limits(cc_old, nxyz, lxyz, 3)
+    # Placeholder for expected correct behavior
+    expected = np.array([])
+    np.testing.assert_array_equal(result, expected)
