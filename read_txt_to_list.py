@@ -8,6 +8,66 @@ from addbcs import add_coords_limits
 import re
 
 
+def reshape_arrays(mole_fractions, chem_potentials, ph_fractions, fin_volcentr_coord, hcc, k1c, ntp, ngd_tot, nel, nph):
+    mole_fractions = np.reshape(np.array(mole_fractions), (ntp, ngd_tot * nel))
+    chem_potentials = np.reshape(np.array(chem_potentials), (ntp, ngd_tot * nel))
+    ph_fractions = np.reshape(np.array(ph_fractions), (ntp, ngd_tot * nph))
+    fin_volcentr_coord = np.array(fin_volcentr_coord)
+    if len(hcc) != 0:
+        hcc = np.reshape(hcc, (1, ngd_tot))
+    if len(k1c) != 0:
+        k1c = np.reshape(k1c, (1, ngd_tot))
+    return mole_fractions, chem_potentials, ph_fractions, fin_volcentr_coord, hcc, k1c
+
+
+def setup_coords_and_limits(fin_volcentr_coord, n_dim, domain_size, ngd):
+    coords_limits, ngd_ternary = np.zeros(3), np.zeros(3, dtype=int)
+    for i in range(n_dim):
+        coords_limits[i] = domain_size[i]
+        ngd_ternary[i] = ngd[i]
+    fin_volcentr_coord_with_limits = add_coords_limits(fin_volcentr_coord, ngd_ternary, coords_limits, n_dim)
+    ngd_bc = np.array([], dtype=int)
+    for i in range(n_dim):
+        ngd_bc = np.append(ngd_bc, ngd[i] + 2)
+    return fin_volcentr_coord_with_limits, ngd_bc
+
+
+def process_timestep(i, mole_fractions, chem_potentials, ph_fractions, nel, nph, ngd, ngd_tot):
+    mf_tstp = get_itemwise_scalars(mole_fractions[i][:], nel, ngd_tot)
+    chem_pot_tstp = get_itemwise_scalars(chem_potentials[i][:], nel, ngd_tot)
+    phf_tstp = get_itemwise_scalars(ph_fractions[i][:], nph, ngd_tot)
+    mf_bc_list = [add_scalars_limits(mf_tstp[0, :], ngd)]
+    chem_pot_bc_list = [add_scalars_limits(chem_pot_tstp[0, :], ngd)]
+    phf_bc_list = [add_scalars_limits(phf_tstp[0, :], ngd)]
+    for elidx in range(1, nel):
+        mf_bc_list.append(add_scalars_limits(mf_tstp[elidx, :], ngd))
+        chem_pot_bc_list.append(add_scalars_limits(chem_pot_tstp[elidx, :], ngd))
+    mf_bc = np.vstack(mf_bc_list)
+    chem_pot_bc = np.vstack(chem_pot_bc_list)
+    for phidx in range(1, nph):
+        phf_bc_list.append(add_scalars_limits(phf_tstp[phidx, :], ngd))
+    phf_bc = np.vstack(phf_bc_list)
+    return mf_bc, chem_pot_bc, phf_bc
+
+
+def append_optional_scalars(header_str, hcc, k1c, ngd):
+    if len(hcc) != 0:
+        hcc_bc = add_scalars_limits(hcc[0][:], ngd)
+        header_str = header_str + 'SCALARS ' + 'HCC' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
+               + re.sub(r'[\[\]]', '', np.array_str(hcc_bc[0][:])) + '\n'
+    if len(k1c) != 0:
+        k1c_bc = add_scalars_limits(k1c[0][:], ngd)
+        header_str = header_str + 'SCALARS ' + 'K1C' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
+                     + re.sub(r'[\[\]]', '', np.array_str(k1c_bc[0][:])) + '\n'
+    return header_str
+
+
+def save_vtk(path, i, header_str):
+    out_file_name = os.path.join(path, 'BCvtk', 'tstp_bc_' + str(i) + '.vtk')
+    with open(out_file_name, "w") as fout:
+        fout.write(header_str)
+
+
 def main(path=None):
     if path is None:
         #path = os.path.join(os.getcwd(), '8-2D-F285-TCFe-AIMD-FittedWithYapfi')
@@ -17,64 +77,38 @@ def main(path=None):
 
     [fin_volcentr_coord, chem_potentials, domain_size, grad_energy_contr, mole_fractions, n_elements,
      n_gridpoints, n_phases, permeabilities, ph_field, ph_fractions, time, el_names, ph_names, n_dimensions, hcc, k1c] = read_files(path)
+
     ntp = int(len(time))
     ngd = np.array(n_gridpoints)
     ngd_tot = np.prod(np.array(ngd))
     nel = n_elements[0]
     nph = n_phases[0]
-    mole_fractions = np.array(mole_fractions)
-    mole_fractions = np.reshape(mole_fractions, (ntp, ngd_tot*nel))
-    array = np.array(chem_potentials)
-    chem_potentials = array
-    chem_potentials = np.reshape(chem_potentials, (ntp, ngd_tot*nel))
-    ph_fractions = np.array(ph_fractions)
-    ph_fractions = np.reshape(ph_fractions,(ntp, ngd_tot*nph))
-    fin_volcentr_coord = np.array(fin_volcentr_coord)
-    if len(hcc) != 0:
-        hcc = np.reshape(hcc, (1,ngd_tot))
-    if len(k1c) != 0:
-        k1c = np.reshape(k1c, (1,ngd_tot))
     n_dim = n_dimensions[0]
-    coords_limits, ngd_ternary = np.zeros(3), np.zeros(3, dtype=int)
-    for i in range(n_dim):
-        coords_limits[i] = domain_size[i]
-        ngd_ternary[i] = ngd[i]
+
+    mole_fractions, chem_potentials, ph_fractions, fin_volcentr_coord, hcc, k1c = reshape_arrays(
+        mole_fractions, chem_potentials, ph_fractions, fin_volcentr_coord, hcc, k1c, ntp, ngd_tot, nel, nph
+    )
+
+    fin_volcentr_coord_with_limits, ngd_bc = setup_coords_and_limits(
+        fin_volcentr_coord, n_dim, domain_size, ngd
+    )
+
     if not os.path.exists(os.path.join(path, 'BCvtk')):
         os.makedirs(os.path.join(path, 'BCvtk'))
-    fin_volcentr_coord_with_limits = add_coords_limits(fin_volcentr_coord, ngd_ternary, coords_limits, n_dim)
-    ngd_bc = np.array([], dtype=int)
-    for i in range(n_dim):
-        ngd_bc = np.append(ngd_bc, ngd[i]+2)
+
     for i in range(ntp):
-        mf_tstp = get_itemwise_scalars(mole_fractions[i][:], nel, ngd_tot)
-        chem_pot_tstp = get_itemwise_scalars(chem_potentials[i][:], nel, ngd_tot)
-        phf_tstp = get_itemwise_scalars(ph_fractions[i][:], nph, ngd_tot)
-        mf_bc_list = [add_scalars_limits(mf_tstp[0, :], ngd)]
-        chem_pot_bc_list = [add_scalars_limits(chem_pot_tstp[0, :], ngd)]
-        phf_bc_list = [add_scalars_limits(phf_tstp[0, :], ngd)]
-        for elidx in range(1, nel):
-            mf_bc_list.append(add_scalars_limits(mf_tstp[elidx, :], ngd))
-            chem_pot_bc_list.append(add_scalars_limits(chem_pot_tstp[elidx, :], ngd))
-        mf_bc = np.vstack(mf_bc_list)
-        chem_pot_bc = np.vstack(chem_pot_bc_list)
-        for phidx in range(1, nph):
-            phf_bc_list.append(add_scalars_limits(phf_tstp[phidx, :], ngd))
-        phf_bc = np.vstack(phf_bc_list)
-        header_str = write_vtk(fin_volcentr_coord_with_limits, ngd_bc, i, el_names, ph_names, mf_bc, chem_pot_bc, phf_bc)
+        mf_bc, chem_pot_bc, phf_bc = process_timestep(
+            i, mole_fractions, chem_potentials, ph_fractions, nel, nph, ngd, ngd_tot
+        )
 
-        if (i == ntp-1) and (len(hcc) != 0):
-            hcc_bc = add_scalars_limits(hcc[0][:], ngd)
-            header_str = header_str + 'SCALARS ' + 'HCC' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
-                   + re.sub(r'[\[\]]', '', np.array_str(hcc_bc[0][:])) + '\n'
-        if (i == ntp-1) and (len(k1c) != 0):
-            k1c_bc = add_scalars_limits(k1c[0][:], ngd)
-            header_str = header_str + 'SCALARS ' + 'K1C' + ' Double 1' + '\n' + 'LOOKUP_TABLE default' + '\n' \
-                         + re.sub(r'[\[\]]', '', np.array_str(k1c_bc[0][:])) + '\n'
+        header_str = write_vtk(
+            fin_volcentr_coord_with_limits, ngd_bc, i, el_names, ph_names, mf_bc, chem_pot_bc, phf_bc
+        )
 
-        out_file_name = os.path.join(path, 'BCvtk', 'tstp_bc_' + str(i) + '.vtk')
-        fout = open(out_file_name, "w")
-        fout.write(header_str)
-        fout.close()
+        if i == ntp - 1:
+            header_str = append_optional_scalars(header_str, hcc, k1c, ngd)
+
+        save_vtk(path, i, header_str)
 
 if __name__ == "__main__":
     main()
