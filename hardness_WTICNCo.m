@@ -88,8 +88,22 @@ Q_TiC = 200;
     nuCC = 0.24;% poisson's ratio of cemented carbide
     GWC = 8;%fracture energy of WC 7-10 J/m^2
 %     ECC = 5.6*10^11; % Pa from wiki 
+
+%% Preallocate arrays and precompute strings to avoid inner loop overhead
+num_nodes = size(mf_tstp, 1) / nel;
+HCC = zeros(1, num_nodes);
+K1C = zeros(1, num_nodes);
+vpvBinder = zeros(1, num_nodes);
+yf = zeros(1, ncomp_nw);
+
+vpvB_str = char(['vpv(' char(ph_name_nw{1}) ')']);
+yf_strs = cell(1, ncomp_nw);
+for comp_idx = 1:ncomp_nw
+    yf_strs{comp_idx} = char(['y(' char(ph_name_nw{1}) ',' char(comp_name_nw(comp_idx)) ')']);
+end
+
 %% loop over all nods - linear array
-for i = 1 : size(mf_tstp,1)/nel
+for i = 1 : num_nodes
     f=1;
     %% Set concentration conditions
     for j = ((i-1)*nel+1): (i*nel-1)
@@ -101,10 +115,10 @@ for i = 1 : size(mf_tstp,1)/nel
     tc_compute_equilibrium;
     %% Read the equilibrium % read VPV and Y fraction of Components of the Binder phase
     %(char(['vpv(' char(ph_name_nw{3}) ')']))
-    vpvB = tc_get_value(char(['vpv(' char(ph_name_nw{1}) ')'])); % only Binder = fcc_a1#1
+    vpvB = tc_get_value(vpvB_str); % only Binder = fcc_a1#1
     vpvBinder(i) = vpvB;
     for comp_idx  = 1: ncomp_nw % only Binder = fcc_a1#1
-        yf(comp_idx) = tc_get_value(char(['y(' char(ph_name_nw{1}) ',' char(comp_name_nw(comp_idx)) ')']));
+        yf(comp_idx) = tc_get_value(yf_strs{comp_idx});
     end
     YVa = yf(1);     
     YC  = yf(2) + yf(4); %YC == YC+YN
@@ -123,17 +137,20 @@ for i = 1 : size(mf_tstp,1)/nel
     HB  = H0 +  H_SSH; %(i)
     mfp = D_size*vpvB/ (1-vpvB); %(i)
     HCC(i) = ( (693+ 2680/sqrt( 2.1+ D_size))- HB) * exp(-((mfp*1e6)^0.67)/k) + HB; %(i) in Vickers / HV to GPa multiply by 0.009807
-    %% Write Hardness to file
-    fprintf(fileID_1, '%f \n', HCC(i)); %(i) in Vickers to GPA => HV multiply by 0.009807
-    fprintf(fileID_3, '%f \n', HCC(i)*0.009807); %(i) in Vickers to GPA => HV multiply by 0.009807
     %% Fracture toughness calculation Linder WPMA 2018
     GB = (1E6 *( 19.655+5.8508*log(mfp/x0) ))^2 * (1-nuB^2) / EB;% fracture eenrgy of the binder
     ECC = EB*((EB+(EWC-EB)*(1-vpvB).^(2/3))/(EB+(EWC-EB)*(1-vpvB).^(2/3)*(1-(1-vpvB).^(1/3)))); % Pa % EB is E_Co% %Paul relation Young modulus of cemented carbide
     K1C(i) = sqrt(  (ECC/(1-nuCC^2)) * (exp(-1.77*vpvB^0.78) * GWC + (1-exp(-1.77*vpvB^0.78))*GB)); %in Pa
-    %% Write Thoughness to file
-    fprintf(fileID_2, '%f \n', K1C(i)); %(i) in Pa
-    fprintf(fileID_4, '%f \n', K1C(i)*1e-6); %(i) in MPa
 end
+
+%% Write Hardness to file
+fprintf(fileID_1, '%f \n', HCC); %(i) in Vickers to GPA => HV multiply by 0.009807
+fprintf(fileID_3, '%f \n', HCC*0.009807); %(i) in Vickers to GPA => HV multiply by 0.009807
+
+%% Write Thoughness to file
+fprintf(fileID_2, '%f \n', K1C); %(i) in Pa
+fprintf(fileID_4, '%f \n', K1C*1e-6); %(i) in MPa
+
 %% Reshape linear arrays and surface 
 HCC_2D = reshape( HCC, [ngp(1), ngp(2)] );
 K1C_2D = reshape( K1C, [ngp(1), ngp(2)] );
