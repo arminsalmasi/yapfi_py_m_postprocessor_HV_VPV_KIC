@@ -68,3 +68,17 @@ def test_add_coords_limits_3d():
     # Placeholder for expected correct behavior
     expected = np.array([])
     np.testing.assert_array_equal(result, expected)
+
+def test_add_coords_limits_0d():
+    cc_old = np.array([1])
+    nxyz = []
+    lxyz = []
+    with pytest.raises(ValueError, match="Unsupported dimension: 0. Only 1D, 2D, and 3D arrays are supported."):
+        add_coords_limits(cc_old, nxyz, lxyz, 0)
+
+def test_add_coords_limits_4d():
+    cc_old = np.array([1, 2, 3, 4])
+    nxyz = [2, 2, 2, 2]
+    lxyz = [10, 10, 10, 10]
+    with pytest.raises(ValueError, match="Unsupported dimension: 4. Only 1D, 2D, and 3D arrays are supported."):
+        add_coords_limits(cc_old, nxyz, lxyz, 4)
