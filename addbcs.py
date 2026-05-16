@@ -39,6 +39,22 @@ def add_coords_limits(cc_old, nxyz , lxyz, n_dim):
         cc_new[1::2] = np.tile(cc_old_y, nx+2)
     if n_dim == 3:
         nx, ny, nz, lx, ly, lz = nxyz[0], nxyz[1], nxyz[2], lxyz[0], lxyz[1], lxyz[2]
+        cc_old_z = cc_old[2:nz*3:3]
+        cc_old_y = cc_old[1:ny*nz*3:nz*3]
+        cc_old_x = cc_old[0:nx*ny*nz*3:ny*nz*3]
+
+        cc_old_x = np.insert(cc_old_x, 0, [0], axis=0)
+        cc_old_y = np.insert(cc_old_y, 0, [0], axis=0)
+        cc_old_z = np.insert(cc_old_z, 0, [0], axis=0)
+
+        cc_old_x = np.insert(cc_old_x, nx+1, lx, axis=0)
+        cc_old_y = np.insert(cc_old_y, ny+1, ly, axis=0)
+        cc_old_z = np.insert(cc_old_z, nz+1, lz, axis=0)
+
+        cc_new = np.empty((nx+2)*(ny+2)*(nz+2)*3)
+        cc_new[0::3] = np.repeat(cc_old_x, (ny+2)*(nz+2))
+        cc_new[1::3] = np.tile(np.repeat(cc_old_y, nz+2), nx+2)
+        cc_new[2::3] = np.tile(cc_old_z, (nx+2)*(ny+2))
     # Return Values
     return cc_new
 
