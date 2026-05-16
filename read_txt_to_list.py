@@ -10,10 +10,7 @@ import re
 
 def main(path=None):
     if path is None:
-        #path = os.path.join(os.getcwd(), '8-2D-F285-TCFe-AIMD-FittedWithYapfi')
-        #path = os.path.join(os.getcwd(), 'LM-Yapfi-firstTry-20181221-files')
         path = os.path.join(os.getcwd(), '10-2D-F2275-TCFE-AIMD-FittedWithYapfi')
-        #path = os.path.join(os.getcwd(), '8-1D-LM_2dGradSint-YAPFI-TCFE8-AIMD-1mm-YAPFIgrid-Compare_to_F285')
 
     [fin_volcentr_coord, chem_potentials, domain_size, grad_energy_contr, mole_fractions, n_elements,
      n_gridpoints, n_phases, permeabilities, ph_field, ph_fractions, time, el_names, ph_names, n_dimensions, hcc, k1c] = read_files(path)
