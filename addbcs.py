@@ -26,7 +26,7 @@ def add_coords_limits(cc_old, nxyz , lxyz, n_dim):
         nx, lx, = nxyz[0], lxyz[0]
         cc_new = np.insert(cc_old, 0, [0], axis=0)
         cc_new = np.insert(cc_new, nx+1, lx, axis=0)
-    if n_dim == 2:
+    elif n_dim == 2:
         nx, ny, lx, ly = nxyz[0], nxyz[1], lxyz[0], lxyz[1]
         cc_old_y = cc_old[1:ny*2:2]
         cc_old_x = cc_old[0:-1:nx*2]
@@ -37,8 +37,10 @@ def add_coords_limits(cc_old, nxyz , lxyz, n_dim):
         cc_new = np.empty((nx+2)*(ny+2)*2)
         cc_new[0::2] = np.repeat(cc_old_x, ny+2)
         cc_new[1::2] = np.tile(cc_old_y, nx+2)
-    if n_dim == 3:
+    elif n_dim == 3:
         nx, ny, nz, lx, ly, lz = nxyz[0], nxyz[1], nxyz[2], lxyz[0], lxyz[1], lxyz[2]
+    else:
+        raise ValueError(f"Unsupported dimension: {n_dim}. Only 1D, 2D, and 3D arrays are supported.")
     # Return Values
     return cc_new
 
