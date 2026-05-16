@@ -49,10 +49,10 @@ def write_vtk(coord, num_ngd, tstp, elnames, phnames, mf, mur, phf):
     parts = [h_str, 'POINT_DATA ' + str(np.prod(num_ngd)) + '\n']
     for k, i in enumerate(elnames):
         parts.append('SCALARS ' + 'mole-fraction(' + str(i) + ') Double 1'+'\n'+'LOOKUP_TABLE default' + '\n'  \
-                     + ' '.join(map(str, mf[k].ravel()))+'\n' \
+                     + ' '.join(mf[k].ravel().astype(str))+'\n' \
                      + 'SCALARS ' + 'chemical-potential(' + str(i) + ') Double 1'+'\n'+'LOOKUP_TABLE default'+'\n' \
-                     + ' '.join(map(str, mur[k].ravel()))+'\n')
+                     + ' '.join(mur[k].ravel().astype(str))+'\n')
     for k, i in enumerate(phnames):
         parts.append('SCALARS ' + 'phase-fraction(' + str(i) + ') Double 1'+'\n'+'LOOKUP_TABLE default' + '\n' \
-                     + ' '.join(map(str, phf[k].ravel()))+'\n')
+                     + ' '.join(phf[k].ravel().astype(str))+'\n')
     return "".join(parts)
