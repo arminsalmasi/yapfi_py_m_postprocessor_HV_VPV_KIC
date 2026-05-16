@@ -1,4 +1,3 @@
-import time
 import numpy as np
 
 def original_add_coords_limits(cc_old, nxyz, lxyz, n_dim):
